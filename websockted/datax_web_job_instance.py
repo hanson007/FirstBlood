@@ -3,7 +3,7 @@
 # @Function: 实时获取 datax 任务实例执行详情
 # @Time    : 2018/7/13 9:34
 # @Author  : Hanson
-# @Email   : 229396865@qq.com
+# @Email   : @qq.com
 # @File    : datax_web_job_instance.py
 # @Software: PyCharm
 # @Company : 东方银谷
