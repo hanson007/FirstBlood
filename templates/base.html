@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>First Blood</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/template/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+	<!-- Chosen -->
+	<link href="/static/template/css/chosen/chosen.min.css" rel="stylesheet"/>
+
+	<!-- Font Awesome -->
+	<link href="/static/template/css/font-awesome.min.css" rel="stylesheet">
+
+	<!-- Pace -->
+	<link href="/static/template/css/pace.css" rel="stylesheet">
+	
+	<!-- Endless -->
+	<link href="/static/template/css/endless.css" rel="stylesheet">
+	<link href="/static/template/css/endless-skin.css" rel="stylesheet">
+
+	<!-- Datatable -->
+	<link href="/static/plugins/datatables/css/jquery.dataTables_themeroller.css" rel="stylesheet">
+
+	<!-- bootstrap-table -->
+	<link href="/static/plugins/bootstarp-table/bootstrap-table.min.css" rel="stylesheet">
+
+	{# 其他HEAD内容，子模板请覆盖此处 #}
+	{% block header_content %}{% endblock %}
+    {# 其他HEAD结束 #}
+
+    <style>
+        /* 取消bootstrap模板 Endless Admin 对bootstrap-table表格中的checkbox按钮样式的修改 */
+        div[title='列'] > ul > li > label > input,
+        .table input {
+          opacity: 1;
+          position: relative;
+        }
+    </style>
+  </head>
+
+  <body class="overflow-hidden">
+	<!-- Overlay Div -->
+	<div id="overlay" class="transparent"></div>
+
+	<a href="" id="theme-setting-icon"><i class="fa fa-cog fa-lg"></i></a>
+	<div id="theme-setting">
+		<div class="title">
+			<strong class="no-margin">Skin Color</strong>
+		</div>
+		<div class="theme-box">
+			<a class="theme-color" style="background:#323447" id="default"></a>
+			<a class="theme-color" style="background:#efefef" id="skin-1"></a>
+			<a class="theme-color" style="background:#a93922" id="skin-2"></a>
+			<a class="theme-color" style="background:#3e6b96" id="skin-3"></a>
+			<a class="theme-color" style="background:#635247" id="skin-4"></a>
+			<a class="theme-color" style="background:#3a3a3a" id="skin-5"></a>
+			<a class="theme-color" style="background:#495B6C" id="skin-6"></a>
+		</div>
+		<div class="title">
+			<strong class="no-margin">Sidebar Menu</strong>
+		</div>
+		<div class="theme-box">
+			<label class="label-checkbox">
+				<input type="checkbox" checked id="fixedSidebar">
+				<span class="custom-checkbox"></span>
+				Fixed Sidebar
+			</label>
+		</div>
+	</div><!-- /theme-setting -->
+	
+	<div id="wrapper" class="preload">
+		<div id="top-nav" class="skin-6 fixed">
+			<div class="brand">
+				<span>First</span>
+				<span class="text-toggle"> Blood</span>
+			</div><!-- /brand -->
+			<button type="button" class="navbar-toggle pull-left" id="sidebarToggle">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<button type="button" class="navbar-toggle pull-left hide-menu" id="menuToggle">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<ul class="nav-notification clearfix">
+				<li class="profile dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+						<strong></strong>
+						<span><i class="fa fa-chevron-down"></i></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li>
+							<a class="clearfix" href="#">
+								<img src="/static/template/img/user.jpg" alt="User Avatar">
+								<div class="detail">
+									<strong></strong>
+									<!-- <p class="grey">John_Doe@email.com</p>  -->
+								</div>
+							</a>
+						</li>
+                        <li>
+                            <a tabindex="-1" href="{% url 'django.contrib.auth.views.password_change' %}" class="main-link">
+                                <i class="fa fa-edit fa-lg"></i> password change</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a tabindex="-1" class="main-link logoutConfirm_open" href="#logoutConfirm"><i class="fa fa-lock fa-lg"></i> Log out</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /top-nav-->
+		
+		<aside class="fixed skin-3">	
+			<div class="sidebar-inner scrollable-sidebar">
+				<div class="size-toggle">
+					<a class="btn btn-sm" id="sizeToggle">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</a>
+					<a class="btn btn-sm pull-right logoutConfirm_open"  href="#logoutConfirm">
+						<i class="fa fa-power-off"></i>
+					</a>
+				</div><!-- /size-toggle -->	
+				<div class="user-block clearfix">
+					<img src="/static/template/img/user.jpg" alt="User Avatar">
+					<div class="detail">
+						<strong>{{nowuser.username}}</strong>
+					</div>
+				</div><!-- /user-block -->
+				<div class="main-menu">
+					<ul>
+						{% block users %}
+						<li class="">
+							<a href="/">
+								<span class="menu-icon">
+									<i class="fa fa-desktop fa-lg"></i>
+								</span>
+								<span class="text">
+									Dashboard
+								</span>
+								<span class="menu-hover"></span>
+							</a>
+						</li>
+                        <li id="scheduled_tasks" class="openable">
+							<a href="#">
+								<span class="menu-icon">
+									<i class="fa fa-tasks fa-lg"></i>
+								</span>
+								<span class="text">
+									数据同步
+								</span>
+								<span class="badge badge-success bounceIn animation-delay5">2</span>
+								<span class="menu-hover"></span>
+							</a>
+                            <ul class="submenu">
+								<li><a href="/datax_web/index/"><span class="submenu-label">作业</span></a></li>
+							</ul>
+                            <ul class="submenu">
+								<li><a href="/datax_web/monitor_job/" target="_black"><span class="submenu-label">执行历史</span></a></li>
+							</ul>
+						</li>
+                        <li id="SQL" class="openable">
+							<a href="#">
+								<span class="menu-icon">
+									<i class="fa fa-asterisk fa-lg"></i>
+								</span>
+								<span class="text">
+									SQL脚本
+								</span>
+								<span class="badge badge-success bounceIn animation-delay5">2</span>
+								<span class="menu-hover"></span>
+							</a>
+                            <ul class="submenu">
+								<li><a href="#"><span class="submenu-label">列表</span></a></li>
+							</ul>
+                            <ul class="submenu">
+								<li><a href="#" target="_black"><span class="submenu-label">执行历史</span></a></li>
+							</ul>
+						</li>
+                        <li id="batch_job" class="openable">
+							<a href="#">
+								<span class="menu-icon">
+									<i class="fa fa-tag fa-lg"></i>
+								</span>
+								<span class="text">
+									批处理作业
+								</span>
+								<span class="badge badge-success bounceIn animation-delay5">3</span>
+								<span class="menu-hover"></span>
+							</a>
+                            <ul class="submenu">
+								<li><a href="/batch_job/index/"><span class="submenu-label">作业列表</span></a></li>
+							</ul>
+                            <ul class="submenu">
+								<li><a href="/batch_job/batch_job_instance/" target="_black"><span class="submenu-label">执行历史</span></a></li>
+							</ul>
+                            <ul class="submenu">
+								<li><a href="/batch_job/crontabs/"><span class="submenu-label">Crontabs</span></a></li>
+							</ul>
+						</li>
+                        <li id="dtmt" class="openable">
+							<a href="#">
+								<span class="menu-icon">
+									<i class="fa fa-wrench fa-lg"></i>
+								</span>
+								<span class="text">
+									数据库管理工具
+								</span>
+								<span class="badge badge-success bounceIn animation-delay5">2</span>
+								<span class="menu-hover"></span>
+							</a>
+                            <ul class="submenu">
+								<li><a href="#"><span class="submenu-label">查询</span></a></li>
+							</ul>
+                            <ul class="submenu">
+								<li><a href="#"><span class="submenu-label">生产库</span></a></li>
+							</ul>
+						</li>
+						{% endblock %}
+					</ul>
+				</div><!-- /main-menu -->
+			</div><!-- /sidebar-inner -->
+		</aside>
+
+		{# 主体，子模板请覆盖此处 #}
+		{% block container %}{% endblock %}
+        {# 主体结束 #}
+
+	</div><!-- /wrapper -->
+
+	<a href="" id="scroll-to-top" class="hidden-print"><i class="fa fa-chevron-up"></i></a>
+	
+	<!-- Logout confirmation -->
+	<div class="custom-popup width-100" id="logoutConfirm">
+		<div class="padding-md">
+			<h4 class="m-top-none"> Do you want to logout?</h4>
+		</div>
+
+		<div class="text-center">
+			<a class="btn btn-success m-right-sm" href="{% url 'django.contrib.auth.views.logout'%}?next=/">Logout</a>
+			<a class="btn btn-danger logoutConfirm_close">Cancel</a>
+		</div>
+	</div>
+	
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	
+
+
+	<!-- Jquery -->
+	<script src="/static/template/js/jquery-1.10.2.min.js"></script>
+
+	<!-- Bootstrap -->
+    <script src="/static/template/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Chosen -->
+	<script src='/static/template/js/chosen.jquery.min.js'></script>
+
+	<!-- Modernizr -->
+	<script src='/static/template/js/modernizr.min.js'></script>
+   
+    <!-- Pace -->
+	<script src='/static/template/js/pace.min.js'></script>
+	
+	<!-- Popup Overlay -->
+	<script src='/static/template/js/jquery.popupoverlay.min.js'></script>
+   
+    <!-- Slimscroll -->
+	<script src='/static/template/js/jquery.slimscroll.min.js'></script>
+    
+	<!-- Cookie -->
+	<script src='/static/template/js/jquery.cookie.min.js'></script>
+
+	<!-- Endless -->
+	<script src="/static/template/js/endless/endless.js"></script>
+
+	<!-- 加载csrf.js，实现ajax post方式提交数据时可以跨过django的跨站请求伪造保护 -->
+	<script src="/static/js/csrf.js"></script>
+
+	<script src="/static/plugins/layer/layer.js"></script> {# 加载layer控件，实现弹出框 #}
+
+	<!-- Datatable -->
+{#	<script src='/static/plugins/datatables/js/jquery.dataTables.min.js'></script>#}
+
+    <!-- bootstrap-table -->
+    <script src='/static/plugins/bootstarp-table/bootstrap-table.min.js'></script>
+    <!-- bootstrap-table-zh -->
+	<script src='/static/plugins/bootstarp-table/bootstrap-table-zh-CN.js'></script>
+
+
+<script>
+$(document).ready(function(){
+  // 设置菜单选中
+    var url = window.location.href;
+    var data = url.split('/');
+    $('#'+ data[3]).attr('class','active openable open');
+    $('#'+ data[3]).find("a[href*="+ data[4] +"]").parent().attr('class','active');
+
+    get_username();
+});
+
+
+/*
+*获取当前用户名
+*/
+function get_username() {
+    var url = '/get_username/';
+    $.post(url, function (data) {
+        var username =  $.parseJSON(data);
+        $('.profile').find('strong').text(username);
+    })
+}
+</script>
+{# 结束内容，子模板请覆盖此处 #}
+{% block footer_content %}{% endblock %}
+   {# 主体结束 #}
+
+
+  </body>
+</html>

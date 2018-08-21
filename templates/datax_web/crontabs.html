@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+.text-overflow{
+width:100px;
+overflow:hidden;;/* 内容超出宽度时隐藏超出部分的内容 */
+text-overflow:ellipsis;;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+white-space:nowrap;/* 不换行 */
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">Crontabs</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+                <div class="form-inline">
+					<a href="/scheduled_tasks/add_crontab_index/" id="add" type="button" class="btn btn-sm btn-info">
+                        <i class="fa fa-plus"></i> 新增</a>
+				</div>
+            <div class="table-responsive">
+				<table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script>
+$(document).ready(function(){
+    $('body').on('mouseover', '.text-overflow', function() {
+        var _cont = $(this).children().text();
+        layer.tips(_cont.split('\n').join('<br>'), $(this), {
+        tips: [1, '#0FA6D8'],
+        time: 0
+        });
+    });
+    $('body').on('mouseout', '.text-overflow', function() {
+        layer.closeAll('tips'); //关闭所有的tips层
+    });
+
+});
+
+
+/*
+*得到查询的参数
+*/
+function queryParams(params) {
+    var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        time: $('#time').val(),
+        investor: $('#investor').val(),
+        investor_cn: $('#investor_cn').val(),
+        investor_id: $('#investor_id').val(),
+        invite_code: $('#invite_code').val(),
+        product: $('#product').val(),
+        investment_amount: $('#investment_amount').val(),
+        return_rate: $('#return_rate').val(),
+        account_manager: $('#account_manager').val(),
+        account_manager_cn: $('#account_manager_cn').val(),
+        emp_num: $('#emp_num').val(),
+        store: $('#store').val(),
+        large_area: $('#large_area').val(),
+        area: $('#area').val(),
+        city: $('#city').val(),
+        start_date: $('#start_date').val(),
+        end_date: $('#end_date').val(),
+        lending_id: $('#lending_id').val(),
+        discount_amount: $('#discount_amount').val(),
+    };
+    return temp;
+}
+
+
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns() {
+    var columns =[{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'crontab',
+        title: 'crontab',
+        formatter: crontabFormatter
+    }];
+    return columns
+}
+
+/*
+*初始化表格
+*/
+$('#table').bootstrapTable({
+    url: '/scheduled_tasks/crontabs_get_data/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    search: true,                  //是否显示搜索 --前端搜索
+    columns:get_columns()
+});
+
+
+/*
+*超链接crontab
+*/
+function crontabFormatter(value, row, index) {
+    var url = "/scheduled_tasks/mod_crontabs_index/" + row.id;
+    return [
+        '<div><a class="mod" href='+ url +'>',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+</script>
+{% endblock %}

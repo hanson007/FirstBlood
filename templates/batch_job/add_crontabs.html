@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load ygol_filter_tag %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <!-- Gritter -->
+	<link href="/static/template/css/gritter/jquery.gritter.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">Add crontab</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+        <div class="row">
+            <div class="col-md-12">
+						<div class="panel panel-default">
+							<form class="form-horizontal form-border no-margin" id="basic-constraint" data-validate="parsley" novalidate>
+								<div class="panel-heading">
+									请按照crontab格式修改，修改后请重新指定定时任务的执行时间
+								</div>
+								<div class="panel-body">
+                                    <form class="form-horizontal form-border no-margin" data-validate="parsley" novalidate>
+                                        <div class="panel-body" id="crontabModal">
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">minute</label>
+                                                <div class="col-lg-5">
+                                                    <input name="minute" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">hour</label>
+                                                <div class="col-lg-5">
+                                                    <input name="hour" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">day_of_week</label>
+                                                <div class="col-lg-5">
+                                                    <input name="day_of_week" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">day_of_month</label>
+                                                <div class="col-lg-5">
+                                                    <input name="day_of_month" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">month_of_year</label>
+                                                <div class="col-lg-5">
+                                                    <input name="month_of_year" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                        </div>
+                                    </form>
+								</div>
+								<div class="panel-footer">
+									<button id="save_crontab" type="button" class="btn btn-success">Save</button>
+								</div>
+							</form>
+						</div><!-- /panel -->
+					</div><!-- /.col-->
+        </div><!-- /.row -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src="/static/template/js/jquery.gritter.min.js"></script>
+<!-- Modernizr -->
+{#<script src='/static/template/js/modernizr.min.js'></script>#}
+<script>
+/*
+*添加 crontab 时间
+*/
+$("#save_crontab").click(function () {
+    var url = '/scheduled_tasks/add_crontab/';
+    var para = {};
+    $("#crontabModal").find('input').each(function () {
+        para[$(this).prop('name')] = $(this).val();
+    });
+    var jpara = JSON.stringify(para);
+    $.post(url, {'data': jpara}, function () {
+        var url ="/scheduled_tasks/crontabs/";
+        ajax_callback2('操作成功', url)
+    })
+});
+
+
+/*
+*ajax get callback2
+*/
+function ajax_callback2(msg, url){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        layer.close(index);
+        window.location=url;
+    });
+}
+</script>
+{% endblock %}

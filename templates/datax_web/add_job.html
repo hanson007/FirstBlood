@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <!-- Gritter -->
+	<link href="/static/template/css/gritter/jquery.gritter.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">新增 数据同步</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+        <div class="row">
+            <div class="col-md-12">
+						<div class="panel panel-default">
+							<form class="form-horizontal form-border no-margin" id="basic-constraint" data-validate="parsley" novalidate>
+								<div class="panel-heading">
+									Add Job
+								</div>
+								<div class="panel-body">
+									<div class="form-group">
+										<label class="control-label col-lg-2">任务名称</label>
+										<div class="col-lg-4">
+											<input type="text" id="name" class="form-control input-sm" data-required="true" placeholder="请输入英文">
+										</div><!-- /.col -->
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">描述</label>
+										<div class="col-lg-4">
+											<textarea id="description" spellcheck="false" class="form-control" placeholder="describe the specific job" rows="6" data-required="true"></textarea>
+										</div><!-- /.col -->
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">查询SQL语句</label>
+										<div class="col-lg-4">
+											<textarea id="querySql" spellcheck="false" class="form-control" placeholder="SQL statement that reads data" rows="6" data-required="true"></textarea>
+										</div><!-- /.col -->
+                                        <span class="col-lg-2">SQL语句里指明数据库</span>
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">读取数据库</label>
+										<div class="col-lg-4">
+                                            <select id="reader_databaseinfo_id" class="form-control">
+                                                <option>请选择</option>
+                                            </select>
+										</div><!-- /.col -->
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">写入表名</label>
+										<div class="col-lg-4">
+											<input type="text" id="writer_table" class="form-control input-sm" data-required="true" placeholder="请输入英文">
+										</div><!-- /.col -->
+                                        <span class="col-lg-2">指明数据库，如：jr_user.user_info. 末尾不用加分号 ;</span>
+									</div><!-- /form-group -->
+									<div class="form-group">
+										<label class="control-label col-lg-2">写入表的列</label>
+										<div class="col-lg-4">
+											<textarea id="writer_column_id" spellcheck="false" class="form-control" placeholder="Write columns" rows="6" data-required="true"></textarea>
+										</div><!-- /.col -->
+                                        <span class="col-lg-3">每行一列, "*" 星号代表所有列。</span>
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">写入数据库</label>
+										<div class="col-lg-4">
+                                            <select id="writer_databaseinfo_id" class="form-control">
+                                                <option>请选择</option>
+                                            </select>
+										</div><!-- /.col -->
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">写入数据前执行的SQL语句</label>
+										<div class="col-lg-4">
+											<textarea id="writer_preSql" spellcheck="false" class="form-control" placeholder="SQL statements executed before writing data" rows="6" data-required="true"></textarea>
+										</div><!-- /.col -->
+                                        <span class="col-lg-2">每条SQL语句末尾要带；分号，指明数据库. 如 truncate table `admin-service`.as_user_info; 注意：SQL语句里面不要带分号;</span>
+									</div><!-- /form-group -->
+                                    <div class="form-group">
+										<label class="control-label col-lg-2">写入数据后执行的SQL语句</label>
+										<div class="col-lg-4">
+											<textarea id="writer_postSql" spellcheck="false" class="form-control" placeholder="SQL statements executed after writing data" rows="6" data-required="true"></textarea>
+										</div><!-- /.col -->
+                                        <span class="col-lg-2">每条SQL语句末尾要带；分号。 注意：SQL语句里面不要带分号;</span>
+									</div><!-- /form-group -->
+								</div>
+								<div class="panel-footer">
+									<button id="save_job" type="button" class="btn btn-success">Save</button>
+								</div>
+							</form>
+						</div><!-- /panel -->
+					</div><!-- /.col-->
+        </div><!-- /.row -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src="/static/template/js/jquery.gritter.min.js"></script>
+<!-- Modernizr -->
+{#<script src='/static/template/js/modernizr.min.js'></script>#}
+<script>
+$(document).ready(function(){
+    var index = layer.load();
+    // Initialization_task_template();
+    // Initialization_cc();
+    // Initialization_crontab();
+    Initialization_Database();
+    layer.close(index);
+});
+
+
+/*
+*初始化任务模板
+*/
+function Initialization_task_template() {
+    var url = '/scheduled_tasks/get_task_template/';
+    var para = {};
+    $.post(url, para, function (jdata) {
+        var data = $.parseJSON(jdata);
+        $.each(data, function (k, v) {
+            var _option = "<option value='"+ v +"'>"+ v +"</option>";
+            $("#task_template").append(_option);
+        });
+    })
+}
+
+
+/*
+*初始化 抄送人列表
+*/
+function Initialization_cc() {
+    var _cc_list = ['liudongdong@yingu.com', 'huangxiaoxue@yingu.com', 'database@yingu.com'];
+    $.each(_cc_list, function (k, v) {
+        $("#cc").append(v);
+        $("#cc").append('\n');
+    })
+}
+
+
+/*
+*初始化crontab 时间
+*/
+function Initialization_crontab() {
+    var url = '/scheduled_tasks/get_crontab/';
+    var para = {};
+    $.post(url, para, function (jdata) {
+        var _data = $.parseJSON(jdata);
+        $("#crontab").empty();
+        $.each(_data, function (k, v) {
+            var _cont = [v.minute, v.hour, v.day_of_week, v.day_of_month, v.month_of_year];
+            var _option = "<option value='"+ v.id +"'>"+ _cont.join(' ')+ " (分/时/周/日/月)" +"</option>";
+            $("#crontab").append(_option);
+        });
+    })
+}
+
+
+/*
+*添加 crontab 时间
+*/
+$("#save_crontab").click(function () {
+    var url = '/scheduled_tasks/add_crontab/';
+    var para = {};
+    $("#crontabModal").find('input').each(function () {
+        para[$(this).prop('name')] = $(this).val();
+    });
+    var jpara = JSON.stringify(para);
+    $.post(url, {'data': jpara}, function () {
+        Initialization_crontab();
+        $('#crontabModal').modal('hide');
+        $.gritter.add({
+            title: "<i class='fa fa-check-circle'></i> Success",
+            text: ' 可选择新添加的crontab时间.',
+            sticky: false,
+            time: '',
+            class_name: 'gritter-success'
+        });
+        return false;
+    })
+});
+
+
+/*
+*初始化数据库
+*/
+function Initialization_Database() {
+    var url = '/datax_web/get_database/';
+    var para = {};
+    $.post(url, para, function (jdata) {
+        var _data = $.parseJSON(jdata);
+        $.each(_data, function (k, v) {
+            // var _option = "<option ip='"+ v.host +"' value='"+ v.id +"'>"+ v.description + "</option>";
+            var _option = "<option value='"+ v.id +"'>"+ v.description + "  " + v.host +"</option>";
+            $("#reader_databaseinfo_id").append(_option);
+            $("#writer_databaseinfo_id").append(_option);
+        });
+    })
+}
+
+
+/*
+*设置数据响应类型
+*/
+$('body').on('change', '#response_type', function() {
+    if ($(this).val() == 2){
+        $('#max_excel_num').parents(".form-group").removeClass('hide');
+        $('#add_sql').parents(".form-group").nextAll().find("input[name='interval']").parents('tr').show();
+
+    }
+    else {
+        $('#max_excel_num').parents(".form-group").addClass('hide');
+        $('#add_sql').parents(".form-group").nextAll().find("input[name='interval']").parents('tr').hide();
+    }
+});
+
+
+/*
+*添加 sql div
+*/
+$("#add_sql").click(function () {
+    var sqldiv = $(this).parents('.panel-body');
+    var _sql_html = $(this).parents('.form-group').prev().html();
+    sqldiv.append("<div class='form-group'></div>");
+    sqldiv.children().last().html(_sql_html);
+    if ($("#response_type").val() != 2){
+        $('#add_sql').parents(".form-group").nextAll().find("input[name='interval']").parents('tr').hide();
+    };
+    count_sqldiv();
+});
+
+
+/*
+*设置 sql div 元素个数
+*/
+function count_sqldiv() {
+   var _count = $("#add_sql").parents('.form-group').nextAll().length;
+    $("#add_sql").next().text("总数 "+ _count + "条");
+}
+
+
+/*
+*sql div 元素 checkbox 全选/反选
+*/
+$("#select_sql").click(function () {
+    var _result = $(this).is(':checked');
+    if (_result){
+        $("input[name='chk_sql']").prop("checked", true);
+    }
+    else {
+        $("input[name='chk_sql']").prop("checked", false);
+    }
+});
+
+
+/*
+*sql apply 按钮,  显示、隐藏、删除 sql div元素
+*/
+$("#sql_apply").click(function () {
+    var _result = $(this).prev().val();
+    if (_result==0){
+        hide_sql_div($(this));
+    }
+    else if(_result==1) {
+        show_sql_div($(this));
+    }
+    else {
+        delete_sql_div($(this));
+    }
+});
+
+
+/*
+*隐藏所有选中的 sql div 元素
+*/
+function hide_sql_div(div) {
+    div.parents(".form-group").nextAll().find("input[name='chk_sql']").each(function () {
+        var _result = $(this).prop("checked");
+        if (_result) {
+            $(this).parent().nextAll().eq(0).addClass("hide");
+            var _div2 = $(this).parent().nextAll().eq(1);
+            _div2.addClass("hide");
+            var sqlname = _div2.find('input').val();
+            var _div3 = $(this).parent().nextAll().eq(2);
+            _div3.children().text(sqlname);
+            _div3.removeClass("hide");
+        }
+    })
+}
+
+/*
+*显示所有选中的 sql div 元素
+*/
+function show_sql_div(div) {
+    div.parents(".form-group").nextAll().find("input[name='chk_sql']").each(function () {
+        var _result = $(this).prop("checked");
+        if (_result) {
+            $(this).parent().nextAll().eq(0).removeClass("hide");
+            var _div2 = $(this).parent().nextAll().eq(1);
+            _div2.removeClass("hide");
+            var sqlname = _div2.find('input').val();
+            var _div3 = $(this).parent().nextAll().eq(2);
+            _div3.children().text(sqlname);
+            _div3.addClass("hide");
+        }
+    })
+}
+
+
+/*
+*删除所有选中的 sql div 元素
+*/
+function delete_sql_div(div) {
+    div.parents(".form-group").nextAll().find("input[name='chk_sql']").each(function () {
+        var _result = $(this).prop("checked");
+        if (_result) {
+            $(this).parents(".form-group").remove();
+            count_sqldiv();
+        }
+    })
+}
+
+
+/*
+*选择数据库后修改IP地址
+*/
+$(document).on('change', "select[name='database']", function () {
+    var _ip = $(this).find("option:selected").attr("ip");
+    $(this).parents("tr").next().find("p").text(_ip);
+});
+
+
+/*
+*保存任务 save job
+*/
+$("#save_job").click(function () {
+    var para = get_para();
+    var jpara = JSON.stringify(para);
+    var url = '/datax_web/add_job_data/';
+    var index = layer.load();
+    $.post(url, {'data': jpara}, function (res) {
+        var _data = $.parseJSON(res);
+        layer.close(index);
+        // 成功则跳转列表页面，失败则提示错误信息继续修改。
+        if (_data.status == 0) {
+            var url ="/datax_web/index/";
+            ajax_callback2(_data.msg, url)
+        }
+        else{
+            ajax_callback1(_data.msg);
+        }
+    });
+});
+
+
+/*
+*获取提交的信息
+*/
+function get_para() {
+    var name = $("#name").val().trim();
+    var description = $("#description").val().trim();
+    var querySql = $("#querySql").val().trim();
+    var reader_databaseinfo_id = $("#reader_databaseinfo_id").val().trim();
+    var writer_table = $("#writer_table").val().trim();
+    var writer_column_id = strToArray($('#writer_column_id'));
+    var writer_databaseinfo_id = $("#writer_databaseinfo_id").val().trim();
+    var writer_preSql = $("#writer_preSql").val().trim();
+    var writer_postSql = $("#writer_postSql").val().trim();
+
+    return {
+        'operation_type': 'add',
+        'name': name,
+        'description': description,
+        'querySql': querySql,
+        'reader_databaseinfo_id': reader_databaseinfo_id,
+        'writer_table': writer_table,
+        'writer_column_id': writer_column_id,
+        'writer_databaseinfo_id': writer_databaseinfo_id,
+        'writer_preSql': writer_preSql,
+        'writer_postSql': writer_postSql
+    }
+}
+
+/*
+*获取邮件人列表
+*/
+function strToArray (div) {
+    var data = [];
+    var val = div.val().trim();
+    if (val.length != 0) {
+        data = val.split("\n");
+    }
+    return data
+}
+
+
+/*
+*获取SQL
+*/
+function get_sql_list() {
+    var _sql_list = [];
+    $("#add_sql").parents('.form-group').nextAll().each(function () {
+        var sentence = $(this).find("textarea[name='sentence']").val().trim();
+        var name = $(this).find("input[name='name']").val().trim();
+        var database = $(this).find("select[name='database']").val().trim();
+        var interval = $(this).find("input[name='interval']").val().trim();
+        var cont = {'database': database, 'sentence':sentence, 'name':name,
+                    'interval': interval};
+        _sql_list.push(cont)
+    });
+    return _sql_list
+}
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+
+/*
+*ajax get callback2
+*/
+function ajax_callback2(msg, url){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        layer.close(index);
+        window.location=url;
+    });
+}
+</script>
+{% endblock %}

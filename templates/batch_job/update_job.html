@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <!-- Gritter -->
+	<link href="/static/template/css/gritter/jquery.gritter.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">更新 数据同步</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <form class="form-horizontal form-border no-margin" id="basic-constraint" data-validate="parsley" novalidate>
+                        <div class="panel-heading">
+                            Add Job
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">任务名称</label>
+                                <div class="col-lg-4">
+                                    <input type="text" id="name" class="form-control input-sm" data-required="true" placeholder="请输入英文">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">描述</label>
+                                <div class="col-lg-4">
+                                    <textarea id="description" spellcheck="false" class="form-control" placeholder="describe the specific job" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">查询SQL语句</label>
+                                <div class="col-lg-4">
+                                    <textarea id="querySql" spellcheck="false" class="form-control" placeholder="SQL statement that reads data" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                                <span class="col-lg-2">SQL语句里指明数据库</span>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">读取数据库</label>
+                                <div class="col-lg-4">
+                                    <select id="reader_databaseinfo_id" class="form-control">
+                                        <option>请选择</option>
+                                    </select>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">写入表名</label>
+                                <div class="col-lg-4">
+                                    <input type="text" id="writer_table" class="form-control input-sm" data-required="true" placeholder="请输入英文">
+                                </div><!-- /.col -->
+                                <span class="col-lg-2">指明数据库，如：jr_user.user_info. 末尾不用加分号 ;</span>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">写入表的列</label>
+                                <div class="col-lg-4">
+                                    <textarea id="writer_column_id" spellcheck="false" class="form-control" placeholder="Write columns" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                                <span class="col-lg-3">每行一列, "*" 星号代表所有列。</span>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">写入数据库</label>
+                                <div class="col-lg-4">
+                                    <select id="writer_databaseinfo_id" class="form-control">
+                                        <option>请选择</option>
+                                    </select>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">写入数据前执行的SQL语句</label>
+                                <div class="col-lg-4">
+                                    <textarea id="writer_preSql" spellcheck="false" class="form-control" placeholder="SQL statements executed before writing data" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                                <span class="col-lg-2">每条SQL语句末尾要带；分号，指明数据库. 如 truncate table `admin-service`.as_user_info;</span>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">写入数据后执行的SQL语句</label>
+                                <div class="col-lg-4">
+                                    <textarea id="writer_postSql" spellcheck="false" class="form-control" placeholder="SQL statements executed after writing data" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                                <span class="col-lg-2">每条SQL语句末尾要带；分号</span>
+                            </div><!-- /form-group -->
+                        </div>
+                        <div class="panel-footer">
+                            <button id="save_job" type="button" class="btn btn-success">Save</button>
+                            <button id="RunJob" type="button" class="btn btn-info">Run</button>
+                        </div>
+                    </form>
+                </div><!-- /panel -->
+					</div><!-- /.col-->
+        </div><!-- /.row -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src="/static/template/js/jquery.gritter.min.js"></script>
+<!-- Modernizr -->
+{#<script src='/static/template/js/modernizr.min.js'></script>#}
+<script>
+$(document).ready(function(){
+    var index = layer.load();
+    Initialization_Database();
+    init_update_job_data();
+    layer.close(index);
+});
+
+
+
+/*
+*获取需要修改的周期任务数据
+*/
+function init_update_job_data() {
+    var url = '/datax_web/get_update_job_data/';
+    var str=location.href;
+    var args = str.split('/');
+    var _id = args[args.length-2];
+    var para = {'_id': _id};
+	$.ajax({
+		type : "post",
+		url : url,
+		data : para,
+		success : function (jdata) {
+			var data = $.parseJSON(jdata);
+			$("#name").val(data.name);
+			$("#description").val(data.description);
+			$("#querySql").val(data.querySql);
+			$("#reader_databaseinfo_id").val(data.reader_databaseinfo_id);
+			$("#writer_table").val(data.writer_table);
+			$("#writer_databaseinfo_id").val(data.writer_databaseinfo_id);
+			$("#writer_preSql").val(data.writer_preSql);
+			$("#writer_postSql").val(data.writer_postSql);
+			$("#writer_column_id").val(data.writer_column_id);
+		}
+  	});
+}
+
+
+/*
+*初始化数据库
+*/
+function Initialization_Database() {
+    var url = '/datax_web/get_database/';
+    var para = {};
+	$.ajax({
+		type : "post",
+		url : url,
+		data : para,
+		async: false,
+		success : function (jdata) {
+			var _data = $.parseJSON(jdata);
+			$.each(_data, function (k, v) {
+				var _option = "<option value='"+ v.id +"'>"+ v.description + "  " + v.host +"</option>";
+				$("#reader_databaseinfo_id").append(_option);
+				$("#writer_databaseinfo_id").append(_option);
+			});
+	  	}
+  	});
+}
+
+
+/*
+*保存任务 save job
+*/
+$("#save_job").click(function () {
+    var para = get_para();
+    var jpara = JSON.stringify(para);
+    var url = '/datax_web/add_job_data/';
+    var index = layer.load();
+    $.post(url, {'data': jpara}, function (res) {
+        var _data = $.parseJSON(res);
+        layer.close(index);
+        // 成功则跳转列表页面，失败则提示错误信息继续修改。
+        if (_data.status == 0) {
+            var url ="/datax_web/index/";
+            ajax_callback2(_data.msg, url)
+        }
+        else{
+            ajax_callback1(_data.msg);
+        }
+    });
+});
+
+
+/*
+*运行任务 run job
+*/
+$("#RunJob").click(function () {
+    let para = get_para();
+    let jpara = JSON.stringify(para);
+    let url = '/datax_web/run_job/';
+    let index = layer.load();
+    $.post(url, {'data': jpara}, function (res) {
+        let _data = $.parseJSON(res);
+        console.log(_data);
+        layer.close(index);
+        ajax_callback1(_data.msg)
+    });
+});
+
+
+/*
+*获取提交的信息
+*/
+function get_para() {
+    let str=location.href;
+	let args = str.split('/');
+    let _id = args[args.length-2];
+    let name = $("#name").val().trim();
+    let description = $("#description").val().trim();
+    let querySql = $("#querySql").val().trim();
+    let reader_databaseinfo_id = $("#reader_databaseinfo_id").val().trim();
+    let writer_table = $("#writer_table").val().trim();
+    let writer_column_id = strToArray($('#writer_column_id'));
+    let writer_databaseinfo_id = $("#writer_databaseinfo_id").val().trim();
+    let writer_preSql = $("#writer_preSql").val().trim();
+    let writer_postSql = $("#writer_postSql").val().trim();
+
+    return {
+        '_id': _id,
+        'operation_type': 'mod',
+        'name': name,
+        'description': description,
+        'querySql': querySql,
+        'reader_databaseinfo_id': reader_databaseinfo_id,
+        'writer_table': writer_table,
+        'writer_column_id': writer_column_id,
+        'writer_databaseinfo_id': writer_databaseinfo_id,
+        'writer_preSql': writer_preSql,
+        'writer_postSql': writer_postSql,
+        'trigger_mode': 2,
+    }
+}
+
+
+/*
+*获取邮件人列表
+*/
+function strToArray (div) {
+    let data = [];
+    let val = div.val().trim();
+    if (val.length != 0) {
+        data = val.split("\n");
+    }
+    return data
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    let index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+
+/*
+*ajax get callback2
+*/
+function ajax_callback2(msg, url){
+    let index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        layer.close(index);
+        window.location=url;
+    });
+}
+</script>
+{% endblock %}

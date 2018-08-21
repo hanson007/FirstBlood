@@ -1,0 +1,623 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+/* 设置chosen菜单向上弹出 css样式 */
+.chosen-container .chosen-drop {
+    border-bottom: 0;
+    border-top: 1px solid #aaa;
+    top: auto;
+    bottom: 40px;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+    <!-- Gritter -->
+	<link href="/static/template/css/gritter/jquery.gritter.css" rel="stylesheet">
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">更新批处理作业</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+
+	<div class="padding-md">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <form class="form-horizontal form-border no-margin" id="basic-constraint" data-validate="parsley" novalidate>
+                        <div class="panel-heading">
+                            Update Batch Job
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">任务名称</label>
+                                <div class="col-lg-4">
+                                    <input type="text" id="name" class="form-control input-sm" data-required="true" placeholder="请输入英文">
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">描述</label>
+                                <div class="col-lg-4">
+                                    <textarea id="description" spellcheck="false" class="form-control" placeholder="describe the specific job" rows="6" data-required="true"></textarea>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">任务模板</label>
+                                <div class="col-lg-3">
+                                    <select id="task_template" class="form-control"></select>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">是否启用</label>
+                                <div class="col-lg-9">
+                                    <div class="seperator"></div>
+                                    <label class="label-checkbox inline">
+                                        <input id="is_enable" type="checkbox" data-required="true" name="chk-demo" checked="checked">
+                                        <span class="custom-checkbox"></span>
+                                    </label>
+                                </div><!-- /.col -->
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">执行时间</label>
+                                <div class="col-lg-4">
+                                    <select id="crontab" class="form-control">
+                                        <option>请选择</option>
+                                    </select>
+                                </div><!-- /.col -->
+                                <div class="col-lg-1">
+                                    <a href="#crontabModal" data-toggle="modal" type="button" class="btn btn-default"><i class="fa fa-plus"></i></a>
+                                </div>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">作业详情</label>
+                                <div class="col-lg-9">
+                                     <table class="table table-hover table-bordered NoNewline" id="table"></table>
+                                </div><!-- /.col -->
+                                <div class="col-lg-1">
+                                    <button id="batch_job_delete_btn" type="button" class="btn btn-default"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2"><span class="label label-info">选择作业列表</span></label>
+                            </div><!-- /form-group -->
+                            <div class="form-group">
+                                <label class="control-label col-lg-2">数据同步</label>
+                                <div class="col-lg-4">
+                                    <select id="datax_job" class="form-control chzn-select">
+                                        <option value="-1">请选择</option>
+                                    </select>
+                                </div><!-- /.col -->
+                                <div class="col-lg-1">
+                                    <button data-toggle="modal" type="button" class="btn btn-default"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div><!-- /form-group -->
+                        </div>
+
+                        <div class="panel-footer">
+                            <button id="save_job" type="button" class="btn btn-success">Save</button>
+                            <button id="RunJob" type="button" class="btn btn-info">Run</button>
+                        </div>
+                    </form>
+                    <div class="modal fade" id="crontabModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4>Add crontab</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="form-horizontal form-border no-margin" id="basic-constraint" data-validate="parsley" novalidate>
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">minute</label>
+                                                <div class="col-lg-9">
+                                                    <input name="minute" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">hour</label>
+                                                <div class="col-lg-9">
+                                                    <input name="hour" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">day_of_week</label>
+                                                <div class="col-lg-9">
+                                                    <input name="day_of_week" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">day_of_month</label>
+                                                <div class="col-lg-9">
+                                                    <input name="day_of_month" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                            <div class="form-group">
+                                                <label class="control-label col-lg-2">month_of_year</label>
+                                                <div class="col-lg-9">
+                                                    <input name="month_of_year" type="text" class="form-control input-sm" data-required="true" value="*" placeholder="Required Field">
+                                                </div><!-- /.col -->
+                                            </div><!-- /form-group -->
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-success btn-sm" data-dismiss="modal" aria-hidden="true">Close</button>
+                                    <a id="save_crontab" type="button" class="btn btn-danger btn-sm">Save</a>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+                </div><!-- /panel -->
+            </div><!-- /.col-->
+        </div><!-- /.row -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script src="/static/template/js/jquery.gritter.min.js"></script>
+<!-- Modernizr -->
+{#<script src='/static/template/js/modernizr.min.js'></script>#}
+<script>
+$(document).ready(function(){
+    let index = layer.load();
+    Initialization_task_template();
+    Initialization_datax_job();
+    Initialization_crontab();
+    InitBatchjobDetailTable();
+    InitBatchJobData();
+    InitSubJob();
+    disableOperation();
+    layer.close(index);
+});
+
+
+/*
+*初始化任务模板
+*/
+function Initialization_task_template() {
+    let url = '/batch_job/get_task_template/';
+    $.ajax({
+        type: "POST",
+        url: url,
+        async: false, // false为同步，true为异步。默认为true
+        success: function(jdata){
+            let data = $.parseJSON(jdata);
+            $.each(data, function (k, v) {
+                let _option = "<option value='"+ v +"'>"+ v +"</option>";
+                $("#task_template").append(_option);
+            });
+        }
+   })
+}
+
+
+/*
+*初始化 数据同步选择按钮select内容
+*/
+function Initialization_datax_job() {
+    let url = '/datax_web/get_job_data/';
+    let para = {};
+    $.post(url, para, function (jdata) {
+        let data = $.parseJSON(jdata);
+        $.each(data, function (k, v) {
+            let _option = "<option value='"+ v.id +"'>"+ v.name + " " + v.description +"</option>";
+            $("#datax_job").append(_option);
+        });
+        $(".chzn-select").chosen({no_results_text: '没有找到', "drop_direction": "down", });
+    })
+}
+
+
+/*
+*初始化crontab 时间
+*/
+function Initialization_crontab() {
+    let url = '/batch_job/get_crontab/';
+    $.ajax({
+        type: "POST",
+        url: url,
+        async: false, // false为同步，true为异步。默认为true
+        success: function(jdata){
+            let _data = $.parseJSON(jdata);
+            $("#crontab").empty();
+            $.each(_data, function (k, v) {
+                let _cont = [v.minute, v.hour, v.day_of_week, v.day_of_month, v.month_of_year];
+                let _option = "<option value='"+ v.id +"'>"+ _cont.join(' ')+ " (分/时/周/日/月)" +"</option>";
+                $("#crontab").append(_option);
+            });
+        }
+   })
+}
+
+
+/**
+ * 初始化批处理作业数据
+ */
+function InitBatchJobData(){
+    let url = '/batch_job/get_batch_job_data_by_id/';
+    let _id = getId();
+    let para = {'_id': _id};
+    $.ajax({
+		type : "post",
+		url : url,
+		data : para,
+		success : function (jdata) {
+			let data = $.parseJSON(jdata);
+			$("#name").val(data.name);
+			$("#description").val(data.description);
+			$("#task_template").val(data.task);
+			$("#is_enable").prop('checked', data.enabled);
+			$("#crontab").val(data.crontab_id);
+
+		}
+  	});
+}
+
+/**
+ * 初始化子作业
+ */
+function InitSubJob() {
+    let url = '/batch_job/get_batch_job_sub_job_by_id/';
+    let _id = getId();
+    let para = {'_id': _id};
+    $.ajax({
+		type : "post",
+		url : url,
+		data : para,
+		success : function (jdata) {
+			let data = $.parseJSON(jdata);
+            $("#table").bootstrapTable('append', data);
+		}
+  	});
+}
+
+
+/*
+*初始化批处理作业详情表格
+*/
+function InitBatchjobDetailTable(){
+    $('#table').bootstrapTable({
+        url: '#',
+        pagination: true,                   //是否显示分页（*）
+        sortable: false,                     //是否启用排序
+        sortOrder: "asc",                   //排序方式
+        showColumns: true,
+        queryParams: queryParams,           //传递参数（*）
+        sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,                       //初始化加载第一页，默认第一页
+        pageSize: 10,                       //每页的记录行数（*）
+        pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+        search: true,                  //是否显示搜索 --前端搜索
+        columns:get_columns()
+    });
+}
+
+
+/*
+*得到查询的参数
+*/
+function queryParams(params) {
+    return {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        name: $('#name').val(),
+        description: $('#description').val(),
+        reader_databaseinfo_host: $('#reader_databaseinfo_host').val(),
+        writer_databaseinfo_host: $('#writer_databaseinfo_host').val(),
+        status: $('#status').val(),
+        writer_table: $('#writer_table').val(),
+        result: $('#result').val(),
+        trigger_mode: $('#trigger_mode').val(),
+    };
+}
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns() {
+    return [{
+            field: 'checkbox',
+            checkbox: true,
+        },{
+            title: '序号',//标题  可不加
+            formatter: function (value, row, index) {
+                return index+1;
+                }
+        }, {
+            field: 'subjob_id',
+            title: 'ID',
+            visible: false
+        }, {
+            field: 'name',
+            title: '任务名称',
+            formatter: subjectFormatter
+        }, {
+            field: 'description',
+            title: '描述 '
+        }, {
+            field: 'type',
+            title: '类型',
+            formatter: typeFormatter
+    }];
+}
+
+
+/*
+*添加 crontab 时间
+*/
+$("#save_crontab").click(function () {
+    var url = '/batch_job/add_crontab/';
+    var para = {};
+    $("#crontabModal").find('input').each(function () {
+        para[$(this).prop('name')] = $(this).val();
+    });
+    var jpara = JSON.stringify(para);
+    $.post(url, {'data': jpara}, function () {
+        Initialization_crontab();
+        $('#crontabModal').modal('hide');
+        $.gritter.add({
+            title: "<i class='fa fa-check-circle'></i> Success",
+            text: ' 可选择新添加的crontab时间.',
+            sticky: false,
+            time: '',
+            class_name: 'gritter-success'
+        });
+        return false;
+    })
+});
+
+
+/*
+* 添加数据同步
+*/
+$('#datax_job').parent().next().click(function () {
+    let val = $("#datax_job").val();
+    let text = $("#datax_job").find("option:selected").text();
+    let name = text.split(' ')[0];
+    let description = text.split(' ')[1];
+
+    if (val > 0){
+        let is_selected = false;
+        let selectedData = $("#table").bootstrapTable('getData');
+        $.each(selectedData, function (k, v) {
+            if (v.subjob_id == val){
+                is_selected = true;
+                layer.msg(v.description + ' 已添加');
+           }
+        });
+        if (!is_selected){
+            let row = {'subjob_id': val, 'name':name, 'description': description, 'type': 1};
+            $("#table").bootstrapTable('append', [row]);
+        }
+    }
+});
+
+
+/*
+*删除批处理作业详情
+*/
+$("#batch_job_delete_btn").click(function () {
+    let selectedData = $("#table").bootstrapTable('getSelections');
+    let ids = $.map(selectedData, function (row) {
+        return row.subjob_id
+    });
+    $('#table').bootstrapTable('remove', {field: 'subjob_id', values: ids});
+});
+
+
+/*
+*保存任务 save job
+*/
+$("#save_job").click(function () {
+    let _id = getId();
+    let para = get_para();
+    para['_id'] = _id;
+    para['trigger_mode'] = 2;
+    let jpara = JSON.stringify(para);
+    let url = '/batch_job/add_batch_job_data/';
+    let index = layer.load();
+    $.post(url, {'data': jpara}, function (res) {
+        let _data = $.parseJSON(res);
+        layer.close(index);
+        // 成功则跳转列表页面，失败则提示错误信息继续修改。
+        if (_data.status == 0) {
+            let url ="/batch_job/index/";
+            ajax_callback2(_data.msg, url)
+        }
+        else{
+            ajax_callback1(_data.msg);
+        }
+    });
+});
+
+
+/*
+*获取提交的信息
+*/
+function get_para() {
+    let name = $("#name").val().trim();
+    let description = $("#description").val().trim();
+    let task_template = $("#task_template").val().trim();
+    let is_enable = $("#is_enable").is(":checked");
+    let crontab = $("#crontab").val().trim();
+    let batch_job_details = $('#table').bootstrapTable('getData');
+
+    return {
+        'operation_type': 2,
+        'name': name,
+        'description': description,
+        'task_template': task_template,
+        'is_enable': is_enable,
+        'crontab': crontab,
+        'batch_job_details': batch_job_details,
+    }
+}
+
+
+/*
+* 超链接显示
+* 子作业扩展后，需要根据子作业类型生成url
+*/
+function subjectFormatter(value, row, index) {
+    let url = "/datax_web/update_job/" + row.subjob_id;
+    return [
+        '<div><a target="_black" class="mod" href='+ url +'>',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*格式化执行结果
+*/
+function typeFormatter(value, row, index) {
+    let resultF = null;
+    let className = null;
+    switch (Number(value)){
+        case 1:
+            resultF = '数据同步';
+            className = '';
+            break;
+        case 2:
+            resultF = 'SQL脚本';
+            className = 'label-danger';
+            break;
+        case 3:
+            resultF = '备份';
+            className = 'label-info';
+            break;
+    }
+    return '<span class="label ' + className + '">' + resultF + '</span>'
+}
+
+
+/**
+* 运行任务 run job
+*/
+$("#RunJob").click(function () {
+    let para = get_para();
+    para['_id'] = getId();
+    para['trigger_mode'] = 2;
+    let jpara = JSON.stringify(para);
+    let url = '/batch_job/run_batch_job_task/';
+    let index = layer.load();
+    $.post(url, {'data': jpara}, function (res) {
+        let _data = $.parseJSON(res);
+        layer.close(index);
+        ajax_callback1(_data.msg)
+    });
+});
+
+
+
+
+
+/**
+ * 获取URL后面的ID
+ * return: _id
+ */
+function getId() {
+    let str=location.href;
+    let args = str.split('/');
+    return args[args.length-2];
+}
+
+
+/**
+ * 根据权限禁用用户操作
+ */
+function disableOperation() {
+    let data = {'permission': 'batch_job.editBatchJob'};
+    $.ajax({
+        type: 'POST',
+        url: "/check_permission/",
+        data: data,
+        success: function (jret) {
+            let ret = $.parseJSON(jret);
+            if (ret.status == 1){
+                $('input,select,button,textarea').attr('disabled', 'disabled')
+            }
+        }
+    });
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    let index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+
+/*
+*ajax get callback2
+*/
+function ajax_callback2(msg, url){
+    let index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+        layer.close(index);
+        window.location=url;
+    });
+}
+</script>
+{% endblock %}

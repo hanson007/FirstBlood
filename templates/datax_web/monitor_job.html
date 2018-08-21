@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+.text-overflow{
+width:100px;
+overflow:hidden;;/* 内容超出宽度时隐藏超出部分的内容 */
+text-overflow:ellipsis;;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+white-space:nowrap;/* 不换行 */
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">数据同步 - 执行历史</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default table-responsive">
+            <div class="panel-body">
+                <table class="table-condensed" id="search_tb">
+                    <tr>
+                        <td><label>任务名称</label></td>
+                        <td><input type="text" id="name" name="store" class="form-control input-sm"></td>
+                        <td><label>描述</label></td>
+                        <td><input type="text" id="description" name="account_manager" class="form-control input-sm"></td>
+                        <td><label>读取数据库</label></td>
+                        <td>
+                            <select id="reader_databaseinfo_host" name="database" class="form-control">
+                                <option value="">请选择</option>
+                            </select>
+                        </td>
+                        <td><label>执行状态</label></td>
+                        <td>
+    						<select id="status" name="status" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="0">正在执行</option>
+                                <option value="1">执行完成</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>写入表</label></td>
+                        <td><input type="text" id="writer_table" name="account_manager_cn" class="form-control input-sm"></td>
+                        <td><label>写入数据库</label></td>
+                        <td>
+                            <select id="writer_databaseinfo_host" name="database" class="form-control">
+                                <option value="">请选择</option>
+                            </select>
+                        </td>
+                        <td><label>执行结果</label></td>
+                        <td>
+    						<select id="result" name="result" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="0">成功</option>
+                                <option value="1">失败</option>
+                                <option value="2">未知</option>
+                            </select>
+                        </td>
+                        <td><label>触发模式</label></td>
+                        <td>
+    						<select id="trigger_mode" name="status" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="1">自动</option>
+                                <option value="2">手动</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                </table>
+                <button id="search" type="button" class="btn btn-sm btn-success">搜索</button>
+            </div>
+            <div class="form-inline">
+
+            </div>
+            <div class="table-responsive">
+				<table class="table table-hover table-bordered NoNewline" id="table"></table>
+			</div><!-- /.padding-md -->
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script>
+$(document).ready(function(){
+    $('body').on('mouseover', '.text-overflow', function() {
+        var _cont = $(this).children().text();
+        layer.tips(_cont.split('\n').join('<br>'), $(this), {
+        tips: [1, '#0FA6D8'],
+        time: 0
+        });
+    });
+    $('body').on('mouseout', '.text-overflow', function() {
+        layer.closeAll('tips'); //关闭所有的tips层
+    });
+
+    Initialization_Database();
+});
+
+
+/*
+*初始化表格
+*/
+$('#table').bootstrapTable({
+    url: '/datax_web/get_datax_job_instance/',
+    pagination: true,                   //是否显示分页（*）
+    sortable: false,                     //是否启用排序
+    sortOrder: "asc",                   //排序方式
+    showColumns: true,
+    queryParams: queryParams,           //传递参数（*）
+    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                       //初始化加载第一页，默认第一页
+    pageSize: 10,                       //每页的记录行数（*）
+    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+    search: true,                  //是否显示搜索 --前端搜索
+    columns:get_columns()
+});
+
+
+/*
+*得到查询的参数
+*/
+function queryParams(params) {
+    return {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+        limit: params.limit,   //页面大小
+        offset: params.offset,  //页码
+        name: $('#name').val(),
+        description: $('#description').val(),
+        reader_databaseinfo_host: $('#reader_databaseinfo_host').val(),
+        writer_databaseinfo_host: $('#writer_databaseinfo_host').val(),
+        status: $('#status').val(),
+        writer_table: $('#writer_table').val(),
+        result: $('#result').val(),
+        trigger_mode: $('#trigger_mode').val(),
+    };
+}
+
+
+/*
+*获取bootstraptable 的列columns
+*/
+function get_columns() {
+    var columns =[{
+        title: '序号',//标题  可不加
+        formatter: function (value, row, index) {
+            return index+1;
+            }
+    }, {
+        field: 'id',
+        title: 'ID',
+        visible: false
+    }, {
+        field: 'name',
+        title: '任务名称',
+        formatter: subjectFormatter
+    }, {
+        field: 'description',
+        title: '描述 '
+    }, {
+        field: 'querySql',
+        title: '查询sql',
+        formatter: receiversFormatter
+    }, {
+        field: 'reader_databaseinfo_host',
+        title: '读取数据库',
+        formatter: receiversFormatter
+    }, {
+        field: 'writer_table',
+        title: '写入表',
+        formatter: receiversFormatter
+    }, {
+        field: 'writer_databaseinfo_host',
+        title: '写入数据库',
+        formatter: receiversFormatter
+    }, {
+        field: 'writer_preSql',
+        title: '写入前SQL',
+        formatter: receiversFormatter
+    }, {
+        field: 'writer_postSql',
+        title: '写入后SQL',
+        formatter: receiversFormatter
+    }, {
+        field: 'trigger_mode',
+        title: '触发模式',
+        formatter: triggerModeFormatter
+    }, {
+        field: 'status',
+        title: '执行状态',
+        formatter: statusFormatter
+    }, {
+        field: 'result',
+        title: '执行结果 ',
+        formatter: resultFormatter
+    }, {
+        field: 'start_time',
+        title: '开始时间 '
+    }, {
+        field: 'end_time',
+        title: '结束时间 '
+    }];
+    return columns
+}
+
+
+$('#search').click(function(){
+    var opt = {
+        url: '/datax_web/get_datax_job_instance/',
+        silent: true
+    };
+    $('#table').bootstrapTable('refresh', opt)
+});
+
+
+/*
+*刷新表格
+*/
+function refreshTable()
+{
+    $('#table').bootstrapTable('refresh')
+}
+
+
+/*
+*开启自动刷新
+*/
+var refreshId = null;
+$('#OpenAutomaticRefresh').click(function () {
+    if (refreshId){
+        layer.msg('自动刷新已开启');
+    }
+    else{
+        refreshId = setInterval("refreshTable()","10000");
+        layer.msg('已开启自动刷新，每隔10秒刷新结果！');
+    }
+});
+
+
+/*
+*关闭自动刷新
+*/
+$('#CloseAutomaticRefresh').click(function () {
+    clearInterval(refreshId);
+    refreshId = null;
+    layer.msg('已关闭自动刷新');
+});
+
+
+/*
+*超链接显示收件人
+*/
+function receiversFormatter(value, row, index) {
+    return [
+        '<div class="text-overflow"><a href="#">',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*超链接显示邮件标题
+*/
+function subjectFormatter(value, row, index) {
+    var url = "/datax_web/monitor_job_detail/" + row.instance_id;
+    return [
+        '<div><a class="mod" href='+ url +'>',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*格式化执行结果
+*/
+function resultFormatter(value, row, index) {
+    switch (Number(value)){
+        case 0:
+            var resultF = '成功';
+            var className = 'label-success';
+            break;
+        case 1:
+            var resultF = '失败';
+            className = 'label-danger';
+            break;
+        case 2:
+            resultF = '';
+            className = 'label-info';
+            break;
+    }
+    return '<span class="label ' + className + '">' + resultF + '</span>'
+}
+
+
+/*
+*格式化执行状态
+*/
+function statusFormatter(value, row, index) {
+    switch (Number(value)){
+        case 0:
+            var resultF = '正在执行';
+            var className = '';
+            break;
+        case 1:
+            var resultF = '执行完成';
+            className = '';
+            break;
+    }
+    return '<span class="label ' + className + '">' + resultF + '</span>'
+}
+
+
+/*
+*格式化触发模式
+*/
+function triggerModeFormatter(value, row, index) {
+    switch (Number(value)){
+        case 1:
+            var resultF = '自动';
+            var className = '';
+            break;
+        case 2:
+            var resultF = '手动';
+            className = '';
+            break;
+    }
+    return '<span class="label ' + className + '">' + resultF + '</span>'
+}
+
+
+/*
+*初始化数据库
+*/
+function Initialization_Database() {
+    var url = '/datax_web/get_database/';
+    var para = {};
+    $.post(url, para, function (jdata) {
+        var _data = $.parseJSON(jdata);
+        $.each(_data, function (k, v) {
+            var _option = "<option value='"+ v.host +"'>"+ v.description + " " + v.host.substr(0, 15) + "</option>";
+            $("#reader_databaseinfo_host").append(_option);
+            $("#writer_databaseinfo_host").append(_option);
+        });
+    })
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    var index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+celery==3.1.25
+celery-with-redis==3.0
+
+Django==1.11.14
+django-celery==3.2.1
+
+MySQL-python==1.2.5
+
+redis==2.10.6
+
+supervisor==3.3.4
+

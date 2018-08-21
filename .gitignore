@@ -1,0 +1,21 @@
+# python pyc pyo
+*.pyc
+*.pyo
+
+# log
+*.log
+
+# out
+*.out
+
+# pid 
+*.pid
+
+# pycharm
+.idea
+
+# datax
+datax
+
+# create table sql
+*/migrations

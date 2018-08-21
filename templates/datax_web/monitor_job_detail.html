@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<style>
+.center {
+ width: auto;
+ display: table;
+ margin-left: auto;
+ margin-right: auto;
+}
+.text-center > table > tbody > tr > th,
+.text-center > table > thead > tr > th {
+ text-align: center;
+}
+
+.table-responsive {
+width: 100%;
+margin-bottom: 15px;
+overflow-x: scroll;
+overflow-y: hidden;
+border: 1px solid #dddddd;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+-webkit-overflow-scrolling: touch;
+}
+.table-responsive > .table {
+margin-bottom: 0;
+}
+.table-responsive > .table > thead > tr > th,
+.table-responsive > .table > tbody > tr > th,
+.table-responsive > .table > tfoot > tr > th,
+.table-responsive > .table > thead > tr > td,
+.table-responsive > .table > tbody > tr > td,
+.table-responsive > .table > tfoot > tr > td {
+white-space: nowrap;
+}
+
+.NoNewline
+{
+word-break: keep-all;/*必须*/
+white-space: nowrap;
+}
+
+.text-overflow{
+width:100px;
+overflow:hidden;;/* 内容超出宽度时隐藏超出部分的内容 */
+text-overflow:ellipsis;;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+white-space:nowrap;/* 不换行 */
+}
+
+.code_pre{ /* 取消自动换行 */
+white-space:pre-wrap;
+white-space:-moz-pre-wrap;
+white-space:-pre-wrap;
+white-space:-o-pre-wrap;
+word-wrap:break-word;
+}
+</style>
+	<!-- Datepicker -->
+    <link href="/static/template/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block container %}
+<div id="main-container">
+	<div class="main-header clearfix">
+		<div class="page-title">
+			<h3 class="no-margin">任务实例执行详情</h3>
+		</div><!-- /page-title -->
+	</div><!-- /main-header -->
+
+	<div class="padding-md">
+		<div class="panel panel-default">
+            <pre id="datax_web_instance_detail" class="code_pre"></pre>
+		</div><!-- /panel -->
+	</div><!-- /padding-md -->
+
+</div><!-- /main-container -->
+{% endblock %}
+
+{% block footer_content %}
+
+
+<!-- Datepicker -->
+<script src='/static/template/js/bootstrap-datepicker.js'></script>
+<script src='/static/template/js/bootstrap-datepicker.zh-CN.min.js'></script>
+<script>
+$(document).ready(function(){
+    let host = document.domain;
+    let url = 'ws://'+ host +':8080/';
+    let ws = new WebSocket(url);
+    ws.onmessage = function(event) {
+        let cont = event.data + '\n';
+        console.log(event.data, event.data.length);
+        $('#datax_web_instance_detail').append(cont);
+    };
+    ws.onopen = function () {
+        ws.send(getId());
+    };
+});
+
+
+
+/*
+*超链接显示收件人
+*/
+function receiversFormatter(value, row, index) {
+    return [
+        '<div class="text-overflow"><a href="#">',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+/*
+*超链接显示邮件标题
+*/
+function subjectFormatter(value, row, index) {
+    let url = "/scheduled_tasks/mod_periodic_task/" + row.djcelery_periodictask_id;
+    return [
+        '<div><a class="mod" href='+ url +'>',
+        value,
+        '</a></div>'
+    ].join('');
+}
+
+
+
+/*
+*格式化执行结果
+*/
+function resultFormatter(value, row, index) {
+    let resultF = '成功';
+    let className = 'label-success';
+    if (value==1){
+        resultF = '失败';
+        className = 'label-danger';
+    }
+    return '<span class="label ' + className + '">' + resultF + '</span>'
+}
+
+
+/**
+ * 获取URL后面的ID
+ * return: _id
+ */
+function getId() {
+    let str=location.href;
+    let args = str.split('/');
+    return args[args.length-2];
+}
+
+
+/*
+*ajax get callback
+*/
+function ajax_callback1(msg){
+    let index = layer.alert(msg, {
+        skin: 'layui-layer-molv' //样式类名
+    },function(){
+       layer.close(index)
+    });
+}
+</script>
+{% endblock %}
