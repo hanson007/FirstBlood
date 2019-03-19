@@ -5,7 +5,20 @@
     2.执行SQL脚本 （后期开发）
     3.定时执行
     
-## 安装
+## 安装（两种方法）
+### 1.Docker 镜像安装
+#### 系统已打包成docker镜像，3个多G，可以直接使用
+    1.1 拉取镜像
+    docker pull hanson001/first_blood:v1
+    1.2 运行容器
+    docker run -itd --privileged -p 10028:22 -p 9028:9000 -p 3328:3306 -p 8080:8080 --name FirstBlood_test  hanson001/first_blood:v1 /usr/sbin/init
+
+    10028映射centos系统ssh连接端口，用户名root 密码 123.com
+    3328映射MySQL数据库端口，用户名root 密码123.com
+    8080映射内部websocket端口
+    9028映射内部系统访问端口，登录地址：http://服务器IP:9028 用户名 admim 密码123456.com
+    
+### 2.源码配置安装
 #### 准备环境
     1.python 环境 2.7
     2.安装requirements.txt里的依赖包，若运行时还报缺少模块的错误，再安装缺少的模块。
@@ -62,15 +75,3 @@
 ## 使用
     大部分功能操作参照博客
     databaseinfo 表，需要预先导入生产库的表信息
-
-### Docker 镜像安装
-#### 系统已打包成docker镜像，3个多G，可以直接使用
-    1.1 拉取镜像
-    docker pull hanson001/first_blood:v1
-    1.2 运行容器
-    docker run -itd --privileged -p 10028:22 -p 9028:9000 -p 3328:3306 -p 8080:8080 --name FirstBlood_test  hanson001/first_blood:v1 /usr/sbin/init
-
-    10028映射centos系统ssh连接端口，用户名root 密码 123.com
-    3328映射MySQL数据库端口，用户名root 密码123.com
-    8080映射内部websocket端口
-    9028映射内部系统访问端口，登录地址：http://服务器IP:9028 用户名 admim 密码123456.com
