@@ -3,6 +3,9 @@
 */
 create database FirstBlood default character set utf8 collate utf8_bin;
 
+/* 进入数据库 */
+use FirstBlood;
+
 
 /*
 * 数据库信息

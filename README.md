@@ -18,8 +18,8 @@
     涉及到项目功能模块增删改查，全部使用原生SQL语句。
     涉及到用户认证、权限控制等等，使用Django的orm。
 
-    1.执行 python manage.py migrate，创建项目用户认证、权限控制所需要的表（Django自带）
-    2.create_table.sql 执行建表语句，创建项目中各个模块所需要的表
+    1.create_table.sql 执行建表语句，创建项目中各个模块所需要的表
+    2.执行 python manage.py migrate，创建项目用户认证、权限控制所需要的表（Django自带）
 
 #### 运行其它服务
     由于项目使用到定时任务和异步实时查询日志功能，所以需要使用到celery和websockted。
@@ -53,7 +53,7 @@
         将datax产生的日志导入web_log目录里。
 
         操作命令：
-        cd 项目路径/FirstBlood/datax
+        cd 项目路径/FirstBlood/datax/
         mkdir web_log
 
 ## 启动
@@ -62,3 +62,15 @@
 ## 使用
     大部分功能操作参照博客
     databaseinfo 表，需要预先导入生产库的表信息
+
+## Docker 镜像安装
+   系统已打包成docker镜像，3个多G，可以直接使用
+   1.拉取镜像
+   docker pull hanson001/first_blood:v1
+   2.运行容器
+   docker run -itd --privileged -p 10028:22 -p 9028:9000 -p 3328:3306 -p 8080:8080 --name FirstBlood_test  hanson001/first_blood:v1 /usr/sbin/init
+
+   10028映射centos系统ssh连接端口，用户名root 密码 123.com
+   3328映射MySQL数据库端口，用户名root 密码123.com
+   8080映射内部websocket端口
+   9028映射内部系统访问端口，登录地址：http://服务器IP:9028 用户名 admim 密码123456.com

@@ -507,6 +507,8 @@ def run(**data):
     dx.jd.create_file(dx.job_json_file, dx.get_job_json())
     dx.jd.start_log()
     (status, output) = commands.getstatusoutput(dx.cmd)
+    if status:
+        logger.error("status:%s output:%s" % (status, output))
     result = 1 if status else 0
     dx.jd.record_result_log(result)
 

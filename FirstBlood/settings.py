@@ -81,36 +81,21 @@ WSGI_APPLICATION = 'FirstBlood.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-if os.environ.has_key(SYSTEM_ENVIRONMENT_VARIABLES):
-    # 测试环境
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'FirstBlood',  # Or path to database file if using sqlite3.
-            'USER': 'root',  # Not used with sqlite3.
-            'PASSWORD': '123.com',  # Not used with sqlite3.
-            'HOST': '127.0.0.1',  # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
-            'STORAGE_ENGINE': 'MYISAM'
-            # 'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
-        }
+
+# 测试环境
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'FirstBlood',  # Or path to database file if using sqlite3.
+        'USER': 'root',  # Not used with sqlite3.
+        'PASSWORD': '123.com',  # Not used with sqlite3.
+        'HOST': '127.0.0.1',  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
+        'STORAGE_ENGINE': 'MYISAM'
+        # 'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
     }
-    CELERYD_CONCURRENCY = 3
-else:
-    # 生产环境
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'FirstBlood',  # Or path to database file if using sqlite3.
-            'USER': 'huangxiaoxue',  # Not used with sqlite3.
-            'PASSWORD': 'huangxiaoxue',  # Not used with sqlite3.
-            'HOST': 'xxx',  # Set to empty string for localhost. Not used with sqlite3.
-            'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
-            'STORAGE_ENGINE': 'MYISAM'
-            # 'OPTIONS': {"init_command": "SET foreign_key_checks = 0;",},
-        }
-    }
-    CELERYD_CONCURRENCY = 10
+}
+CELERYD_CONCURRENCY = 3
 
 
 # Password validation
